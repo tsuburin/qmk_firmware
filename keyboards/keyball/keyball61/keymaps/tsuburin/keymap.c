@@ -26,7 +26,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_right_ball(
     KC_GRV   , KC_1     , KC_2     , KC_3     , KC_4     , KC_5     ,                                   KC_6     , KC_7     , KC_8     , KC_9     , KC_0     , KC_MINS  ,
     KC_TAB   , KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                   KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_LBRC  ,
-    KC_CAPS  , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                   KC_H     , KC_J     , KC_K     , KC_L     , KC_SCLN  , KC_QUOT  ,
+    KC_CAPS  , KC_A     , KC_S     , KC_D     , KC_F     , KC_G     ,                                   KC_H     , KC_J     , KC_K     , KC_L     , LT(2,KC_SCLN), KC_QUOT  ,
     KC_LSFT  , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     , TO(0)    ,             MO(1)    , KC_N     , KC_M     , KC_COMM  , KC_DOT   , KC_SLSH  , TO(1)    ,
     TO(0)    , KC_LGUI  , MO(2)    , KC_LALT  , TO(0)    , KC_SPC   , KC_DEL   ,             KC_BSPC  , KC_ENT   ,                                  TO(3)    , MO(2)
   ),
@@ -57,18 +57,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-    // Auto enable scroll mode when the highest layer is 3
-    keyball_set_scroll_mode(get_highest_layer(state) == 3);
-    return state;
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LT(2, KC_SCLN): {
+            if (!record->tap.count) {
+                // Intercept hold function to enable scroll mode
+                keyball_set_scroll_mode(record -> event.pressed);
+                return true;
+            }
+        }
+    }
+
+    return true;
 }
 
 void pointing_device_init_user(void) {
-    set_auto_mouse_enable(true);         // always required before the auto mouse feature will work
+    set_auto_mouse_enable(true); // always required before the auto mouse feature will work
 }
 
-bool is_mouse_record_user(uint16_t keycode, keyrecord_t* record) {
-    switch(keycode) {
+bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
         case CPI_I100:
         case CPI_D100:
         case CPI_I1K:
