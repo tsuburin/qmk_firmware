@@ -21,6 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "quantum.h"
 #include "keyball61.h"
 
+enum my_keycodes {
+    BALL_MOVED = KEYBALL_SAFE_RANGE,
+};
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_right_ball(
@@ -73,6 +77,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void pointing_device_init_user(void) {
     set_auto_mouse_enable(true); // always required before the auto mouse feature will work
+}
+
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    // スクロール方向逆転
+    mouse_report.v = -mouse_report.v;
+    mouse_report.h = -mouse_report.h;
+
+    return mouse_report;
+}
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch(keycode) {
+        case LT(2, KC_SCLN):
+            return true;
+        default:
+            return false;
+    }
 }
 
 bool is_mouse_record_user(uint16_t keycode, keyrecord_t *record) {
